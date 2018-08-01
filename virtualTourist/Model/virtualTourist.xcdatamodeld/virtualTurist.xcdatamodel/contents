@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Album" representedClassName="Album" syncable="YES" codeGenerationType="class">
+        <attribute name="begin" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="end" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="page" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="album_photo" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Photo" inverseName="photo_album" inverseEntity="Photo" syncable="YES"/>
         <relationship name="album_pin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pin" inverseName="pint_album" inverseEntity="Pin" syncable="YES"/>
     </entity>
@@ -21,8 +24,8 @@
         <relationship name="pint_album" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Album" inverseName="album_pin" inverseEntity="Album" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Album" positionX="-558" positionY="-207" width="128" height="103"/>
-        <element name="Photo" positionX="-218" positionY="-117" width="128" height="120"/>
+        <element name="Album" positionX="-558" positionY="-207" width="128" height="148"/>
+        <element name="Photo" positionX="-218" positionY="-117" width="128" height="118"/>
         <element name="Pin" positionX="-900" positionY="-315" width="128" height="118"/>
     </elements>
 </model>

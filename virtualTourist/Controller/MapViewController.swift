@@ -31,10 +31,10 @@ class MapViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.activityIndicator(isBusy: true)
-
         mapView.delegate = self
         fetchPins()
         insertFetchedPinsOnMap(pins)
+        self.view.activityIndicator(isBusy: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -208,10 +208,5 @@ extension MapViewController : MKMapViewDelegate {
         if control == view.rightCalloutAccessoryView {
             self.performSegue(withIdentifier: "mapToAlbum", sender: view.annotation)
         }
-    }
-    
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-        self.view.activityIndicator(isBusy: false)
-        print(views.count)
     }
 }
