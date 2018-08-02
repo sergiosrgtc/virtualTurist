@@ -12,22 +12,21 @@ import CoreData
 
 class AlbumViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var tableView: UITableView!
     
     var dataController = DataController.sharedInstance
     var pin: Pin!
     var mapPin: CustomMapPin!
     var album: Album?
-    
+    var fetchedResultsController:NSFetchedResultsController<Album>!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        collectionView.delegate = self
-        collectionView.dataSource = self
+        tableView.delegate = self
+        tableView.dataSource = self
         
         self.view.activityIndicator(isBusy: true)
-        
-        setUpCollectionViewLayout()
         
         do{
             try pin = dataController.viewContext.existingObject(with: mapPin.pinID) as! Pin
@@ -35,58 +34,24 @@ class AlbumViewController: UIViewController {
             showAlert("Error", message: "Pin could not be loaded: \(error.localizedDescription)")
         }
         updateMapWithCoordinate(lat: pin.latitude!, long: pin.longitude!)
+        self.view.activityIndicator(isBusy: false)
         if pin.pint_album?.count == 0 {
-            getImagesFromFlickr()
-        }else{
-            album = pin.pint_album?.allObjects.first as? Album
-            self.view.activityIndicator(isBusy: false)
+            createAlbum()
+            setupFetchedResultsController()
         }
+        self.view.activityIndicator(isBusy: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        collectionView.reloadData()
+        setupFetchedResultsController()
     }
     
-    func getImagesFromFlickr(){
-        FlickrApi.SharedInstance.searchPicturesBy(lat: pin.latitude!, lon: pin.longitude!) { (flickrPics) in
-            if let photoAlbum = flickrPics.photoAlbum{
-                let album = Album(context: self.dataController.viewContext)
-                album.name = "MyAlbum"
-                album.creationDate = Date()
-                album.page = Int32(photoAlbum.page!)
-                self.pin.addToPint_album(album)
-                var index = 0
-                if let photosArray = photoAlbum.photo{
-                    for flickPhoto in photosArray{
-                        index = index + 1
-                        let photo = Photo(context: self.dataController.viewContext)
-                        photo.name = flickPhoto.title!
-                        photo.creationDate = Date()
-                        photo.url = flickPhoto.urlM!
-                        if let imageData = try? Data(contentsOf: URL(string: photo.url!)!) {
-                           photo.image = imageData
-                        }
-                        album.addToAlbum_photo(photo)
-                        if index == 15 {
-                            break
-                        }
-                    }
-                }
-                do{
-                    try self.dataController.viewContext.save()
-                }catch{
-                    self.showAlert("Error", message: "Pin cound not be saved: \(error.localizedDescription)")
-                }
-                self.album = album
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                    self.view.activityIndicator(isBusy: false)
-                }
-            }
-        }
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchedResultsController = nil
     }
-    
+       
     func updateMapWithCoordinate(lat: String, long: String){
         let coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(lat)!, longitude: CLLocationDegrees(long)!)
         if var region = mapView?.region {
@@ -101,51 +66,115 @@ class AlbumViewController: UIViewController {
             mapView.isScrollEnabled = false
         }
     }
+    
+    @IBAction func createNewAlbum(_ sender: Any) {
+        createAlbum()
+        setupFetchedResultsController()
+    }
 
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "albumToPic"{
-            if let vcPhoto = segue.destination as? PhotoViewController{
-                vcPhoto.photo = sender as? Photo
+        if segue.identifier == "albumToPictures"{
+            if let vcCollection = segue.destination as? CollectionPicturesViewController{
+                vcCollection.album = sender as? Album
             }
         }
     }
- 
-
 }
 
-// MARK: - UICollectionView
-extension AlbumViewController : UICollectionViewDelegate, UICollectionViewDataSource{
-   
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album?.album_photo?.count ?? 0
+// MARK: - Core Data
+extension AlbumViewController: NSFetchedResultsControllerDelegate{
+    func createAlbum(){
+        let album = Album(context: self.dataController.viewContext)
+        album.name = "First Album"
+        album.creationDate = Date()
+        album.page = 1
+        album.album_pin = pin
+        try? dataController.viewContext.save()
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellPic", for: indexPath) as! ImageCollectionViewCell
-        cell.activityIndicator(isBusy: true)
-        let photo = album?.album_photo?.allObjects[indexPath.row] as! Photo
-        if let image = UIImage.init(data: photo.image!) {
-            cell.image.image = image
+    func setupFetchedResultsController() {
+        let fetchRequest:NSFetchRequest<Album> = Album.fetchRequest()
+        let predicate = NSPredicate(format: "album_pin == %@", pin)
+        fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }
-        cell.activityIndicator(isBusy: false)
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            tableView.insertRows(at: [newIndexPath!], with: .fade)
+            break
+        case .delete:
+            tableView.deleteRows(at: [indexPath!], with: .fade)
+            break
+        case .update:
+            tableView.reloadRows(at: [indexPath!], with: .fade)
+        case .move:
+            tableView.moveRow(at: indexPath!, to: newIndexPath!)
+        }
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        switch type {
+        case .insert:
+            tableView.insertSections(indexSet, with: .fade)
+        case .delete:
+            tableView.deleteSections(indexSet, with: .fade)
+        case .update, .move:
+            fatalError("Invalid change type in controller(_:didChange:atSectionIndex:for:). Only .insert or .delete should be possible.")
+        }
+    }
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.endUpdates()
+    }
+}
+
+// MARK: - Table view data source
+extension AlbumViewController: UITableViewDataSource, UITableViewDelegate{
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return fetchedResultsController.sections?.count ?? 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return fetchedResultsController.sections?[0].numberOfObjects ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "albumCell", for: indexPath)
+
+        let album = fetchedResultsController.object(at: indexPath)
+        
+        // Configure cell
+        cell.textLabel?.text = album.name
+
+        if let creationDate = album.creationDate {
+            let df = DateFormatter.localizedString(from: creationDate, dateStyle: .full, timeStyle: .medium)
+            cell.detailTextLabel?.text = df
+        }
+        
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let photo = album?.album_photo?.allObjects[indexPath.row] as! Photo
-        performSegue(withIdentifier: "albumToPic", sender: photo)
-    }
-    
-    func setUpCollectionViewLayout(){
-        let screenSize = UIScreen.main.bounds
-        let screenWidth = screenSize.width - 20
-        
-        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 5, bottom: 10, right: 5)
-        layout.itemSize = CGSize(width: screenWidth/3, height: screenWidth/3)
-        layout.minimumInteritemSpacing = 2
-        layout.minimumLineSpacing = 5
-        collectionView!.collectionViewLayout = layout
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let album = fetchedResultsController.object(at: indexPath)
+        performSegue(withIdentifier: "albumToPictures", sender: album)
     }
 }

@@ -28,6 +28,7 @@
 		29A12B2C211000D500811C2F /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B2B211000D500811C2F /* ImageCollectionViewCell.swift */; };
 		29A12B312111400700811C2F /* FlickerPic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B302111400700811C2F /* FlickerPic.swift */; };
 		29A12B332111571500811C2F /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B322111571500811C2F /* PhotoViewController.swift */; };
+		29A12B352112899B00811C2F /* CollectionPicturesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B342112899B00811C2F /* CollectionPicturesViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		29A12B2B211000D500811C2F /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		29A12B302111400700811C2F /* FlickerPic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickerPic.swift; sourceTree = "<group>"; };
 		29A12B322111571500811C2F /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		29A12B342112899B00811C2F /* CollectionPicturesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionPicturesViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +153,7 @@
 			children = (
 				29A12AF12105267400811C2F /* MapViewController.swift */,
 				29A12B21210FD27D00811C2F /* AlbumViewController.swift */,
+				29A12B342112899B00811C2F /* CollectionPicturesViewController.swift */,
 				29A12B322111571500811C2F /* PhotoViewController.swift */,
 			);
 			path = Controller;
@@ -297,6 +300,7 @@
 				29A12B26210FF2F700811C2F /* Constants.swift in Sources */,
 				29A12B22210FD27D00811C2F /* AlbumViewController.swift in Sources */,
 				29A12AF22105267400811C2F /* MapViewController.swift in Sources */,
+				29A12B352112899B00811C2F /* CollectionPicturesViewController.swift in Sources */,
 				29A12B312111400700811C2F /* FlickerPic.swift in Sources */,
 				29A12B1A210D4E0E00811C2F /* View+ActivityIndicator.swift in Sources */,
 				29A12AF02105267400811C2F /* AppDelegate.swift in Sources */,
