@@ -58,11 +58,6 @@ class FlickrApi: NSObject {
             // if an error occurs, print it and re-enable the UI
             func displayError(_ error: String) {
                 print(error)
-                performUIUpdatesOnMain {
-              //      self.setUIEnabled(true)
-              //      self.photoTitleLabel.text = "No photo returned. Try again."
-              //      self.photoImageView.image = nil
-                }
             }
             
             /* GUARD: Was there an error? */

@@ -32,7 +32,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" id="b7B-ow-zoQ"/>
+                    <navigationItem key="navigationItem" id="b7B-ow-zoQ">
+                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="0t4-sW-kRp">
+                            <connections>
+                                <action selector="refreshPins:" destination="BYZ-38-t0r" id="9iF-XT-Ugg"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="mapView" destination="bNq-yW-aaZ" id="0ZX-R9-FRg"/>
                         <segue destination="Rx7-xM-YfM" kind="show" identifier="mapToAlbum" id="zTl-PC-wos"/>
@@ -113,13 +119,13 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="tdY-qC-h09">
                                 <rect key="frame" x="0.0" y="64" width="375" height="150"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="150" id="NPb-Wk-SeG"/>
+                                </constraints>
                             </mapView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="uFG-th-c7d">
                                 <rect key="frame" x="0.0" y="214" width="375" height="453"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="453" id="0CV-Ak-EbW"/>
-                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="albumCell" textLabel="2SC-Qb-T7X" detailTextLabel="cb3-wJ-rjj" style="IBUITableViewCellStyleSubtitle" id="otP-p9-XxF">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
@@ -150,19 +156,24 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="uFG-th-c7d" firstAttribute="leading" secondItem="zzD-lQ-Ybe" secondAttribute="leading" id="9vE-Kd-4ky"/>
-                            <constraint firstItem="uFG-th-c7d" firstAttribute="bottom" secondItem="LiR-iC-N47" secondAttribute="bottom" id="LqG-8F-wh4"/>
-                            <constraint firstItem="tdY-qC-h09" firstAttribute="top" secondItem="LiR-iC-N47" secondAttribute="top" id="UU1-Fv-ski"/>
-                            <constraint firstAttribute="trailing" secondItem="uFG-th-c7d" secondAttribute="trailing" id="V8s-Lc-zbp"/>
-                            <constraint firstItem="uFG-th-c7d" firstAttribute="leading" secondItem="tdY-qC-h09" secondAttribute="leading" id="dl8-MO-UMv"/>
-                            <constraint firstItem="uFG-th-c7d" firstAttribute="trailing" secondItem="tdY-qC-h09" secondAttribute="trailing" id="gU8-zc-8Dc"/>
-                            <constraint firstItem="uFG-th-c7d" firstAttribute="top" secondItem="tdY-qC-h09" secondAttribute="bottom" id="r2V-Ac-UWm"/>
+                            <constraint firstItem="LiR-iC-N47" firstAttribute="trailing" secondItem="uFG-th-c7d" secondAttribute="trailing" id="E2q-dA-RCX"/>
+                            <constraint firstItem="tdY-qC-h09" firstAttribute="centerX" secondItem="LiR-iC-N47" secondAttribute="centerX" id="IFg-Ia-JUk"/>
+                            <constraint firstItem="LiR-iC-N47" firstAttribute="trailing" secondItem="tdY-qC-h09" secondAttribute="trailing" id="IIF-Bm-KLK"/>
+                            <constraint firstItem="uFG-th-c7d" firstAttribute="top" secondItem="tdY-qC-h09" secondAttribute="bottom" id="XOm-KE-XiP"/>
+                            <constraint firstItem="uFG-th-c7d" firstAttribute="leading" secondItem="LiR-iC-N47" secondAttribute="leading" id="s3f-AU-zY4"/>
+                            <constraint firstItem="LiR-iC-N47" firstAttribute="bottom" secondItem="uFG-th-c7d" secondAttribute="bottom" id="uGL-Gm-Tbd"/>
+                            <constraint firstItem="tdY-qC-h09" firstAttribute="leading" secondItem="LiR-iC-N47" secondAttribute="leading" id="uTu-W2-1Cg"/>
+                            <constraint firstItem="tdY-qC-h09" firstAttribute="top" secondItem="LiR-iC-N47" secondAttribute="top" id="x4v-tT-0Lx"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="LiR-iC-N47"/>
                     </view>
                     <navigationItem key="navigationItem" title="Title" id="PUW-gQ-7mB">
                         <rightBarButtonItems>
-                            <barButtonItem systemItem="trash" id="tPi-T7-uqi" userLabel="Delete"/>
+                            <barButtonItem systemItem="trash" id="tPi-T7-uqi" userLabel="Delete">
+                                <connections>
+                                    <action selector="deletePin:" destination="Rx7-xM-YfM" id="NzD-aY-MB2"/>
+                                </connections>
+                            </barButtonItem>
                             <barButtonItem systemItem="add" id="gwx-xG-ubm">
                                 <connections>
                                     <action selector="createNewAlbum:" destination="Rx7-xM-YfM" id="aIe-ZY-O0f"/>

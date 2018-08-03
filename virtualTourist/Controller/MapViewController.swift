@@ -30,17 +30,15 @@ class MapViewController: UIViewController{
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.activityIndicator(isBusy: true)
+        self.title = "Virtual Tourist"
         mapView.delegate = self
-        fetchPins()
-        insertFetchedPinsOnMap(pins)
-        self.view.activityIndicator(isBusy: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         configGestureRecognizer()
+        
+        refreshPins(self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -51,6 +49,13 @@ class MapViewController: UIViewController{
                 }
             }
         }
+    }
+    
+    @IBAction func refreshPins(_ sender: Any) {
+        self.view.activityIndicator(isBusy: true)
+        fetchPins()
+        insertFetchedPinsOnMap(pins)
+        self.view.activityIndicator(isBusy: false)
     }
 }
 
@@ -179,9 +184,6 @@ extension MapViewController{
 // MARK:- MKMapViewDelegate
 extension MapViewController : MKMapViewDelegate {
     
-    // Here we create a view with a "right callout accessory view". You might choose to look into other
-    // decoration alternatives. Notice the similarity between this method and the cellForRowAtIndexPath
-    // method in TableViewDataSource.
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         let reuseId = "pin"
@@ -202,8 +204,6 @@ extension MapViewController : MKMapViewDelegate {
         return pinView
     }
     
-    // This delegate method is implemented to respond to taps. It opens the system browser
-    // to the URL specified in the annotationViews subtitle property.
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if control == view.rightCalloutAccessoryView {
             self.performSegue(withIdentifier: "mapToAlbum", sender: view.annotation)

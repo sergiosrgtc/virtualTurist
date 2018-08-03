@@ -32,30 +32,39 @@ class CollectionPicturesViewController: UIViewController {
         
         setUpCollectionViewLayout()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        collectionView.reloadData()
+    }
 
     func getImagesFromFlickr(){
-        FlickrApi.SharedInstance.searchPicturesBy(lat: album!.album_pin!.latitude!, lon: album!.album_pin!.longitude!) { (flickrPics) in
+        FlickrApi.SharedInstance.searchPicturesBy(lat: album!.album_pin!.latitude!, lon: album!.album_pin!.longitude!, withPageNumber: Int(album!.page)) { (flickrPics) in
             if let photoAlbum = flickrPics.photoAlbum{
-                var index = 0
                 if let photosArray = photoAlbum.photo{
-                    for flickPhoto in photosArray{
-                        index = index + 1
-                        let photo = Photo(context: self.dataController.viewContext)
-                        photo.name = flickPhoto.title!
-                        photo.creationDate = Date()
-                        photo.url = flickPhoto.urlM!
-                        if let imageData = try? Data(contentsOf: URL(string: photo.url!)!) {
-                            photo.image = imageData
+                    if photosArray.count > 0{
+                        let start = Int(self.album!.begin - 1)
+                        var end = Int(self.album!.end - 1)
+                        if photosArray.count < end{
+                            end = photosArray.count - 1
                         }
-                        self.album?.addToAlbum_photo(photo)
+                        let rangedPhotos = photosArray[start...end]
                         
-                        try? self.dataController.viewContext.save()
-                        DispatchQueue.main.async{
-                            self.collectionView.reloadData()
-                        }
-                        if index == 30 {
-                            self.view.activityIndicator(isBusy: false)
-                            break
+                        for flickPhoto in rangedPhotos{
+                            let photo = Photo(context: self.dataController.viewContext)
+                            photo.name = flickPhoto.title!
+                            photo.creationDate = Date()
+                            photo.url = flickPhoto.urlM!
+                            if let imageData = try? Data(contentsOf: URL(string: photo.url!)!) {
+                                photo.image = imageData
+                            }
+                            self.album?.addToAlbum_photo(photo)
+                            
+                            try? self.dataController.viewContext.save()
+                            DispatchQueue.main.async{
+                                self.collectionView.reloadData()
+                            }
                         }
                     }
                 }
@@ -65,8 +74,8 @@ class CollectionPicturesViewController: UIViewController {
                     self.showAlert("Error", message: "Pin cound not be saved: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async {
-                    self.collectionView.reloadData()
                     self.view.activityIndicator(isBusy: false)
+                    self.collectionView.reloadData()
                 }
             }
         }

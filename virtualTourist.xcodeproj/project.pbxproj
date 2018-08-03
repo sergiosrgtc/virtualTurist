@@ -24,7 +24,6 @@
 		29A12B24210FD82B00811C2F /* CustomMapPin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B23210FD82B00811C2F /* CustomMapPin.swift */; };
 		29A12B26210FF2F700811C2F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B25210FF2F700811C2F /* Constants.swift */; };
 		29A12B28210FF4BA00811C2F /* FlickrApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B27210FF4BA00811C2F /* FlickrApi.swift */; };
-		29A12B2A210FF54A00811C2F /* GCDBlackBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B29210FF54A00811C2F /* GCDBlackBox.swift */; };
 		29A12B2C211000D500811C2F /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B2B211000D500811C2F /* ImageCollectionViewCell.swift */; };
 		29A12B312111400700811C2F /* FlickerPic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B302111400700811C2F /* FlickerPic.swift */; };
 		29A12B332111571500811C2F /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A12B322111571500811C2F /* PhotoViewController.swift */; };
@@ -61,7 +60,6 @@
 		29A12B23210FD82B00811C2F /* CustomMapPin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMapPin.swift; sourceTree = "<group>"; };
 		29A12B25210FF2F700811C2F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		29A12B27210FF4BA00811C2F /* FlickrApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrApi.swift; sourceTree = "<group>"; };
-		29A12B29210FF54A00811C2F /* GCDBlackBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDBlackBox.swift; sourceTree = "<group>"; };
 		29A12B2B211000D500811C2F /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		29A12B302111400700811C2F /* FlickerPic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickerPic.swift; sourceTree = "<group>"; };
 		29A12B322111571500811C2F /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
@@ -140,6 +138,7 @@
 		29A12B1B210E013900811C2F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				29A12B27210FF4BA00811C2F /* FlickrApi.swift */,
 				29A12B1C210E014E00811C2F /* DataController.swift */,
 				29A12B23210FD82B00811C2F /* CustomMapPin.swift */,
 				29A12B302111400700811C2F /* FlickerPic.swift */,
@@ -182,8 +181,6 @@
 			children = (
 				29A12AEF2105267400811C2F /* AppDelegate.swift */,
 				29A12B25210FF2F700811C2F /* Constants.swift */,
-				29A12B27210FF4BA00811C2F /* FlickrApi.swift */,
-				29A12B29210FF54A00811C2F /* GCDBlackBox.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -294,7 +291,6 @@
 				29A12B2C211000D500811C2F /* ImageCollectionViewCell.swift in Sources */,
 				29A12B19210D4E0E00811C2F /* ViewController+ShowAlert.swift in Sources */,
 				29A12B24210FD82B00811C2F /* CustomMapPin.swift in Sources */,
-				29A12B2A210FF54A00811C2F /* GCDBlackBox.swift in Sources */,
 				29A12B18210D4E0E00811C2F /* ViewController+HideKeyboard.swift in Sources */,
 				29A12AF82105267400811C2F /* virtualTourist.xcdatamodeld in Sources */,
 				29A12B26210FF2F700811C2F /* Constants.swift in Sources */,

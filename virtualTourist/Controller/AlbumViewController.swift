@@ -36,7 +36,7 @@ class AlbumViewController: UIViewController {
         updateMapWithCoordinate(lat: pin.latitude!, long: pin.longitude!)
         self.view.activityIndicator(isBusy: false)
         if pin.pint_album?.count == 0 {
-            createAlbum()
+            createAlbum(name: "My First Album")
             setupFetchedResultsController()
         }
         self.view.activityIndicator(isBusy: false)
@@ -44,6 +44,9 @@ class AlbumViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        self.title = pin.name ?? "My Pin"
+
         setupFetchedResultsController()
     }
     
@@ -67,11 +70,56 @@ class AlbumViewController: UIViewController {
         }
     }
     
+    func presentDeletePinAlert() {
+        let alert = UIAlertController(title: "Delete Pin", message: "Do you want to delete this Pin and all Albums and Photos?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: deleteHandler))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func deleteHandler(alertAction: UIAlertAction) {
+        deletePin()
+    }
+    
+    func presentNewAlbumAlert() {
+        let alert = UIAlertController(title: "New Album", message: "Enter a name for this album", preferredStyle: .alert)
+        
+        // Create actions
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self] action in
+            if let name = alert.textFields?.first?.text {
+                self?.createAlbum(name: name)
+            }
+        }
+        saveAction.isEnabled = false
+        
+        // Add a text field
+        alert.addTextField { textField in
+            textField.placeholder = "Name"
+            NotificationCenter.default.addObserver(forName: .UITextFieldTextDidChange, object: textField, queue: .main) { notif in
+                if let text = textField.text, !text.isEmpty {
+                    saveAction.isEnabled = true
+                } else {
+                    saveAction.isEnabled = false
+                }
+            }
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(saveAction)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    // MARK: - IBAction
     @IBAction func createNewAlbum(_ sender: Any) {
-        createAlbum()
+        presentNewAlbumAlert()
         setupFetchedResultsController()
     }
-
+    
+    @IBAction func deletePin(_ sender: Any) {
+        presentDeletePinAlert()
+    }
+    
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "albumToPictures"{
@@ -84,15 +132,41 @@ class AlbumViewController: UIViewController {
 
 // MARK: - Core Data
 extension AlbumViewController: NSFetchedResultsControllerDelegate{
-    func createAlbum(){
+    func createAlbum(name: String){
         let album = Album(context: self.dataController.viewContext)
-        album.name = "First Album"
+        album.name = name
         album.creationDate = Date()
-        album.page = 1
+        album.page = Int32(Double(pin.pint_album!.count / 9) + 1)
+        if let lastAlbum = getLatestAlbum(){
+            if lastAlbum.end == Constants.Flickr.MaxItemsPerPage{
+                album.begin = 1
+                album.end = Int32(Constants.Flickr.StandardPage)
+            }else{
+                album.begin =  lastAlbum.end + 1
+                let end = lastAlbum.end + Int32(Constants.Flickr.StandardPage)
+                end >= Constants.Flickr.MaxItemsPerPage ?  (album.end = Int32(Constants.Flickr.MaxItemsPerPage)) : (album.end = end)
+            }
+        }else{
+            album.begin = 1
+            album.end = Int32(Constants.Flickr.StandardPage)
+        }
+        print("\(album.page) \(album.begin) - \(album.end) ")
         album.album_pin = pin
         try? dataController.viewContext.save()
     }
     
+    func deleteAlbum(at indexPath: IndexPath) {
+        let albumToDelete = fetchedResultsController.object(at: indexPath)
+        dataController.viewContext.delete(albumToDelete)
+        try? dataController.viewContext.save()
+    }
+    func deletePin() {
+        dataController.viewContext.delete(pin)
+        try? dataController.viewContext.save()
+        self.navigationController?.popViewController(animated: true)
+    }
+
+    // MARK: - NSFetchedResultsControllerDelegate
     func setupFetchedResultsController() {
         let fetchRequest:NSFetchRequest<Album> = Album.fetchRequest()
         let predicate = NSPredicate(format: "album_pin == %@", pin)
@@ -105,6 +179,21 @@ extension AlbumViewController: NSFetchedResultsControllerDelegate{
         
         do {
             try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
+    
+    func getLatestAlbum() -> Album? {
+        let fetchRequest:NSFetchRequest<Album> = Album.fetchRequest()
+        let predicate = NSPredicate(format: "album_pin == %@", pin)
+        fetchRequest.predicate = predicate
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        do {
+            let result = try self.dataController.viewContext.fetch(fetchRequest)
+            return result.first
         } catch {
             fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }
@@ -176,5 +265,16 @@ extension AlbumViewController: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let album = fetchedResultsController.object(at: indexPath)
         performSegue(withIdentifier: "albumToPictures", sender: album)
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        switch editingStyle {
+        case .delete: deleteAlbum(at: indexPath)
+        default: () // Unsupported
+        }
     }
 }
