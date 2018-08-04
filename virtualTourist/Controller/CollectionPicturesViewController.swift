@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class CollectionPicturesViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
@@ -15,6 +16,7 @@ class CollectionPicturesViewController: UIViewController {
     var pin: Pin!
     var mapPin: CustomMapPin!
     var album: Album?
+    var downloadCollectionSize = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,6 +30,7 @@ class CollectionPicturesViewController: UIViewController {
             getImagesFromFlickr()
         }else{
             self.view.activityIndicator(isBusy: false)
+            downloadCollectionSize = (album?.album_photo?.count)!
         }
         
         setUpCollectionViewLayout()
@@ -35,8 +38,65 @@ class CollectionPicturesViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         collectionView.reloadData()
+    }
+    
+    @IBAction func refresh(_ sender: Any) {
+        self.view.activityIndicator(isBusy: true)
+        deleteAllPhotos()
+        getRandomImagesFromFlickr()
+    }
+    
+    func deleteAllPhotos() {
+        for photo in (album?.album_photo?.allObjects)! {
+            dataController.viewContext.delete(photo as! NSManagedObject)
+        }
+        try? dataController.viewContext.save()
+        downloadCollectionSize = 0
+        self.collectionView.reloadData()
+    }
+    
+// MARK: - Flicker API Methods
+    func getRandomImagesFromFlickr(){
+        FlickrApi.SharedInstance.searchRandomPicturesBy(lat: album!.album_pin!.latitude!, lon: album!.album_pin!.longitude!) { (flickrPics) in
+            if let photoAlbum = flickrPics.photoAlbum{
+                if let photosArray = photoAlbum.photo{
+                    var index = 0
+                    self.downloadCollectionSize = photosArray.count >= Constants.Flickr.StandardPage ? Constants.Flickr.StandardPage : photosArray.count
+                    DispatchQueue.main.async{
+                        self.collectionView.reloadData()
+                    }
+                    for flickPhoto in photosArray{
+                        index = index + 1
+                        let photo = Photo(context: self.dataController.viewContext)
+                        photo.name = flickPhoto.title!
+                        photo.creationDate = Date()
+                        photo.url = flickPhoto.urlM!
+                        if let imageData = try? Data(contentsOf: URL(string: photo.url!)!) {
+                            photo.image = imageData
+                        }
+                        self.album?.addToAlbum_photo(photo)
+                        
+                        try? self.dataController.viewContext.save()
+                        DispatchQueue.main.async{
+                            self.collectionView.reloadData()
+                        }
+                        if index == Constants.Flickr.StandardPage{
+                            break
+                        }
+                    }
+                }
+                do{
+                    try self.dataController.viewContext.save()
+                }catch{
+                    self.showAlert("Error", message: "Pin cound not be saved: \(error.localizedDescription)")
+                }
+                DispatchQueue.main.async {
+                    self.view.activityIndicator(isBusy: false)
+                    self.collectionView.reloadData()
+                }
+            }
+        }
     }
 
     func getImagesFromFlickr(){
@@ -50,7 +110,10 @@ class CollectionPicturesViewController: UIViewController {
                             end = photosArray.count - 1
                         }
                         let rangedPhotos = photosArray[start...end]
-                        
+                        self.downloadCollectionSize = rangedPhotos.count
+                        DispatchQueue.main.async{
+                            self.collectionView.reloadData()
+                        }
                         for flickPhoto in rangedPhotos{
                             let photo = Photo(context: self.dataController.viewContext)
                             photo.name = flickPhoto.title!
@@ -81,7 +144,7 @@ class CollectionPicturesViewController: UIViewController {
         }
     }
     
-    // MARK: - Navigation
+// MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "albumToPic"{
             if let vcPhoto = segue.destination as? PhotoViewController{
@@ -95,16 +158,25 @@ class CollectionPicturesViewController: UIViewController {
 extension CollectionPicturesViewController : UICollectionViewDelegate, UICollectionViewDataSource{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album?.album_photo?.count ?? 0
+        return downloadCollectionSize
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellPic", for: indexPath) as! ImageCollectionViewCell
         cell.activityIndicator(isBusy: true)
-        let photo = album?.album_photo?.allObjects[indexPath.row] as! Photo
-        if let image = UIImage.init(data: photo.image!) {
-            cell.image.image = image
+        if let allObject = album?.album_photo?.allObjects{
+            print(allObject.count)
+            print(indexPath.row)
+            if allObject.count > indexPath.row{
+                let photo = album?.album_photo?.allObjects[indexPath.row] as? Photo
+                if let pic = photo{
+                    if let image = UIImage.init(data: pic.image!) {
+                        cell.image.image = image
+                    }
+                }
+            }
         }
+
         cell.activityIndicator(isBusy: false)
         return cell
     }

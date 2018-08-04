@@ -73,8 +73,9 @@
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ydo-Qh-o1o">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="PlaceHolder" translatesAutoresizingMaskIntoConstraints="NO" id="ydo-Qh-o1o">
                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
+                                                    <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </imageView>
                                             </subviews>
                                         </view>
@@ -100,6 +101,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="5td-QD-8fa"/>
                     </view>
+                    <navigationItem key="navigationItem" id="xNq-o4-v41">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="refresh" id="YFn-bU-aik">
+                            <connections>
+                                <action selector="refresh:" destination="SWl-j2-Jef" id="flD-GA-Ek3"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="PN8-iJ-elq" id="5Ni-Fz-HWd"/>
                         <segue destination="D5n-Hq-PhV" kind="show" identifier="albumToPic" id="CZp-yw-ZxU"/>
@@ -109,7 +117,7 @@
             </objects>
             <point key="canvasLocation" x="2653.5999999999999" y="116.49175412293854"/>
         </scene>
-        <!--Title-->
+        <!--Album View Controller-->
         <scene sceneID="pjA-Jc-FzY">
             <objects>
                 <viewController id="Rx7-xM-YfM" customClass="AlbumViewController" customModule="virtualTourist" sceneMemberID="viewController">
@@ -167,7 +175,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="LiR-iC-N47"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Title" id="PUW-gQ-7mB">
+                    <navigationItem key="navigationItem" id="PUW-gQ-7mB">
                         <rightBarButtonItems>
                             <barButtonItem systemItem="trash" id="tPi-T7-uqi" userLabel="Delete">
                                 <connections>
@@ -191,7 +199,7 @@
             </objects>
             <point key="canvasLocation" x="1848.8" y="116.49175412293854"/>
         </scene>
-        <!--Title-->
+        <!--Photo View Controller-->
         <scene sceneID="ksC-iE-noG">
             <objects>
                 <viewController id="D5n-Hq-PhV" customClass="PhotoViewController" customModule="virtualTourist" sceneMemberID="viewController">
@@ -220,7 +228,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="f7G-ao-CBz"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Title" id="U6s-wI-PJg">
+                    <navigationItem key="navigationItem" id="U6s-wI-PJg">
                         <barButtonItem key="rightBarButtonItem" systemItem="trash" id="1xD-PC-xRX">
                             <connections>
                                 <action selector="deletePhoto:" destination="D5n-Hq-PhV" id="8b8-cj-WP2"/>
@@ -254,4 +262,7 @@
             <point key="canvasLocation" x="117.59999999999999" y="117.39130434782609"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="PlaceHolder" width="48" height="48"/>
+    </resources>
 </document>

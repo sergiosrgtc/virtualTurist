@@ -87,6 +87,58 @@ class FlickrApi: NSObject {
         task.resume()
     }
     
+    func searchRandomPicturesBy(lat: String, lon: String, completionHandler: @escaping (_ flickerPics: FlickerPic) -> Void) {
+        let methodParameters = searchParameters(lat: lat, lon: lon, page: 1)
+        // add the page to the method's parameters
+        var methodParametersWithPageNumber = methodParameters
+        
+        // create session and request
+        let session = URLSession.shared
+        print(flickrURLFromParameters(methodParameters))
+        let request = URLRequest(url: flickrURLFromParameters(methodParameters))
+        
+        // create network request
+        let task = session.dataTask(with: request) { (data, response, error) in
+            
+            // if an error occurs, print it and re-enable the UI
+            func displayError(_ error: String) {
+                print(error)
+            }
+            
+            /* GUARD: Was there an error? */
+            guard (error == nil) else {
+                displayError("There was an error with your request: \(error)")
+                return
+            }
+            
+            /* GUARD: Did we get a successful 2XX response? */
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
+                displayError("Your request returned a status code other than 2xx!")
+                return
+            }
+            
+            /* GUARD: Was there any data returned? */
+            guard let data = data else {
+                displayError("No data was returned by the request!")
+                return
+            }
+            
+            if let flickerPics = try? JSONDecoder().decode(FlickerPic.self, from: data){
+                // pick a random page!
+                if let totalPages = flickerPics.photoAlbum?.pages{
+                    let pageLimit = min(totalPages, 40)
+                    let randomPage = Int(arc4random_uniform(UInt32(pageLimit))) + 1
+                    FlickrApi.SharedInstance.searchPicturesBy(lat: lat, lon: lon, withPageNumber: randomPage) { (flickrPics) in
+                        completionHandler(flickerPics)
+                    }
+                }
+            }
+        }
+        
+        // start the task!
+        task.resume()
+    }
+    
     // MARK: Helper for Creating a URL from Parameters
     
     private func flickrURLFromParameters(_ parameters: [String:AnyObject]) -> URL {
